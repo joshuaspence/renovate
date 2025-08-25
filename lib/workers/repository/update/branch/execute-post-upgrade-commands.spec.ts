@@ -628,6 +628,7 @@ describe('workers/repository/update/branch/execute-post-upgrade-commands', () =>
 
       expect(exec.exec).toHaveBeenCalledWith('some-command', {
         cwd: '/projects/npm/jest-29.5.0',
+        extraEnv: {},
       });
     });
 
@@ -667,6 +668,7 @@ describe('workers/repository/update/branch/execute-post-upgrade-commands', () =>
 
       expect(exec.exec).toHaveBeenCalledWith('some-command', {
         cwd: '/default/dir',
+        extraEnv: {},
       });
     });
   });
