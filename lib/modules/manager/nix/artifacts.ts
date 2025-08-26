@@ -6,6 +6,7 @@ import { exec } from '../../../util/exec';
 import type { ExecOptions } from '../../../util/exec/types';
 import { readLocalFile } from '../../../util/fs';
 import { getRepoStatus } from '../../../util/git';
+import { getGitEnvironmentVariables } from '../../../util/git/auth';
 import * as hostRules from '../../../util/host-rules';
 import { regEx } from '../../../util/regex';
 import type { UpdateArtifact, UpdateArtifactsResult } from '../types';

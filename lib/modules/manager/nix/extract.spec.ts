@@ -1,3 +1,4 @@
+import { codeBlock } from 'common-tags';
 import { GitRefsDatasource } from '../../datasource/git-refs';
 import { id as nixpkgsVersioning } from '../../versioning/nixpkgs';
 import { extractPackageFile } from '.';
@@ -1181,5 +1182,74 @@ describe('modules/manager/nix/extract', () => {
     }`;
     fs.readLocalFile.mockResolvedValueOnce(flakeLock);
     expect(await extractPackageFile('', 'flake.nix')).toBeNull();
+  });
+
+  it('strips refs/tags/ and refs/heads/ prefix from git flake refs', async () => {
+    const flakeLock = codeBlock`{
+      "nodes": {
+        "topsided-with-tag": {
+          "locked": {
+            "narHash": "sha256-TjDXi3ojFkg7LBg9stNWLUVTf3Jhq5012/Mfa1wNPWI=",
+            "ref": "refs/tags/2.8.0",
+            "rev": "f4aeb03f994ad3b2388bc59eae848dcc2dd2f5b7",
+            "revCount": 110,
+            "type": "git",
+            "url": "ssh://git@ghe.anduril.dev/dive/topsided"
+          },
+          "original": {
+            "ref": "refs/tags/2.8.0",
+            "rev": "f4aeb03f994ad3b2388bc59eae848dcc2dd2f5b7",
+            "type": "git",
+            "url": "ssh://git@ghe.anduril.dev/dive/topsided"
+          }
+        },
+        "repo-with-branch": {
+          "locked": {
+            "narHash": "sha256-xyz123...",
+            "ref": "refs/heads/main",
+            "rev": "abc123def456",
+            "revCount": 42,
+            "type": "git",
+            "url": "ssh://git@example.com/org/repo"
+          },
+          "original": {
+            "ref": "refs/heads/main",
+            "rev": "abc123def456",
+            "type": "git",
+            "url": "ssh://git@example.com/org/repo"
+          }
+        },
+        "root": {
+          "inputs": {
+            "topsided-with-tag": "topsided-with-tag",
+            "repo-with-branch": "repo-with-branch"
+          }
+        }
+      },
+      "root": "root",
+      "version": 7
+    }`;
+    fs.readLocalFile.mockResolvedValueOnce(flakeLock);
+    const result = await extractPackageFile('', 'flake.nix');
+    expect(result).toEqual({
+      deps: [
+        {
+          currentDigest: 'f4aeb03f994ad3b2388bc59eae848dcc2dd2f5b7',
+          currentValue: '2.8.0', // Should be stripped from refs/tags/2.8.0
+          datasource: 'git-refs',
+          depName: 'topsided-with-tag',
+          packageName: 'ssh://git@ghe.anduril.dev/dive/topsided',
+          replaceString: 'f4aeb03f994ad3b2388bc59eae848dcc2dd2f5b7',
+        },
+        {
+          currentDigest: 'abc123def456',
+          currentValue: 'main', // Should be stripped from refs/heads/main
+          datasource: 'git-refs',
+          depName: 'repo-with-branch',
+          packageName: 'ssh://git@example.com/org/repo',
+          replaceString: 'abc123def456',
+        },
+      ],
+    });
   });
 });

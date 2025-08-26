@@ -107,6 +107,14 @@ export async function extractPackageFile(
       flakeOriginal.rev = newDigest;
     }
 
+    // Strip refs/tags/ or refs/heads/ prefix from ref if present
+    let refValue = flakeOriginal.ref;
+    if (refValue?.startsWith('refs/tags/')) {
+      refValue = refValue.replace('refs/tags/', '');
+    } else if (refValue?.startsWith('refs/heads/')) {
+      refValue = refValue.replace('refs/heads/', '');
+    }
+
     // use nixpkgsVersioning for all nixpkgs inputs
     if (
       flakeOriginal.type === 'github' &&
@@ -115,7 +123,7 @@ export async function extractPackageFile(
     ) {
       deps.push({
         depName: 'nixpkgs',
-        currentValue: flakeOriginal.rev ? flakeOriginal.ref : undefined,
+        currentValue: flakeOriginal.rev ? refValue : undefined,
         currentDigest: flakeOriginal.rev,
         replaceString: flakeOriginal.rev,
         lockedVersion: flakeOriginal.rev ? undefined : flakeLocked.rev,
@@ -132,7 +140,7 @@ export async function extractPackageFile(
       case 'github':
         deps.push({
           depName,
-          currentValue: flakeOriginal.rev ? flakeOriginal.ref : undefined,
+          currentValue: flakeOriginal.rev ? refValue : undefined,
           currentDigest: flakeOriginal.rev,
           replaceString: flakeOriginal.rev,
           lockedVersion: flakeOriginal.rev ? undefined : flakeLocked.rev,
@@ -143,7 +151,7 @@ export async function extractPackageFile(
       case 'gitlab':
         deps.push({
           depName,
-          currentValue: flakeOriginal.rev ? flakeOriginal.ref : undefined,
+          currentValue: flakeOriginal.rev ? refValue : undefined,
           currentDigest: flakeOriginal.rev,
           replaceString: flakeOriginal.rev,
           lockedVersion: flakeOriginal.rev ? undefined : flakeLocked.rev,
@@ -154,7 +162,7 @@ export async function extractPackageFile(
       case 'git':
         deps.push({
           depName,
-          currentValue: flakeOriginal.rev ? flakeOriginal.ref : undefined,
+          currentValue: flakeOriginal.rev ? refValue : undefined,
           currentDigest: flakeOriginal.rev,
           replaceString: flakeOriginal.rev,
           lockedVersion: flakeOriginal.rev ? undefined : flakeLocked.rev,
@@ -165,7 +173,7 @@ export async function extractPackageFile(
       case 'sourcehut':
         deps.push({
           depName,
-          currentValue: flakeOriginal.rev ? flakeOriginal.ref : undefined,
+          currentValue: flakeOriginal.rev ? refValue : undefined,
           currentDigest: flakeOriginal.rev,
           replaceString: flakeOriginal.rev,
           lockedVersion: flakeOriginal.rev ? undefined : flakeLocked.rev,
@@ -193,7 +201,7 @@ export async function extractPackageFile(
         } else {
           deps.push({
             depName,
-            currentValue: flakeOriginal.rev ? flakeOriginal.ref : undefined,
+            currentValue: flakeOriginal.rev ? refValue : undefined,
             currentDigest: flakeOriginal.rev,
             replaceString: flakeOriginal.rev,
             lockedVersion: flakeOriginal.rev ? undefined : flakeLocked.rev,
