@@ -47,6 +47,7 @@ export async function updateArtifacts({
   }
   const execOptions: ExecOptions = {
     cwdFile: packageFileName,
+    extraEnv: getGitEnvironmentVariables(),
     toolConstraints: [
       {
         toolName: 'nix',
