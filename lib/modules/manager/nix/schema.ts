@@ -13,15 +13,17 @@ const InputType = z.enum([
 
 const LockedInput = z.object({
   ref: z.string().optional(),
-  rev: z.string().optional(),
+  rev: z.string(),
   type: InputType,
   url: z.string().optional(),
 });
 
 const OriginalInput = z.object({
+  // TODO: Do we need these?
   host: z.string().optional(),
   owner: z.string().optional(),
   repo: z.string().optional(),
+
   ref: z.string().optional(),
   rev: z.string().optional(),
   type: InputType,

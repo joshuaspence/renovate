@@ -11,6 +11,10 @@ import * as hostRules from '../../../util/host-rules';
 import { regEx } from '../../../util/regex';
 import type { UpdateArtifact, UpdateArtifactsResult } from '../types';
 
+/**
+ * TODO: Check this
+ */
+
 export async function updateArtifacts({
   packageFileName,
   config,

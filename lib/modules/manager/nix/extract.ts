@@ -6,6 +6,10 @@ import { id as nixpkgsVersioning } from '../../versioning/nixpkgs';
 import type { PackageDependency, PackageFileContent } from '../types';
 import { NixFlakeLock } from './schema';
 
+/**
+ * TODO: Check this
+ */
+
 // as documented upstream
 // https://github.com/NixOS/nix/blob/master/doc/manual/source/protocols/tarball-fetcher.md#gitea-and-forgejo-support
 const lockableHTTPTarballProtocol = regEx(
@@ -107,26 +111,58 @@ export async function extractPackageFile(
       flakeOriginal.rev = newDigest;
     }
 
-    // Strip refs/tags/ or refs/heads/ prefix from ref if present
-    let refValue = flakeOriginal.ref;
-    if (refValue?.startsWith('refs/tags/')) {
-      refValue = refValue.replace('refs/tags/', '');
-    } else if (refValue?.startsWith('refs/heads/')) {
-      refValue = refValue.replace('refs/heads/', '');
+    // Try to get the actual ref/rev values from flake.nix content if available
+    let actualRef = flakeOriginal.ref;
+    let actualRev = flakeOriginal.rev;
+
+    if (flakeContents && depName) {
+      // Look for the dependency URL in flake.nix
+      // Match patterns like: depName.url = "...?ref=<ref>&rev=<rev>..."
+      const depUrlPattern = new RegExp(
+        `${depName}\\.url\\s*=\\s*"([^"]+)"`,
+        'm',
+      );
+      const urlMatch = flakeContents.match(depUrlPattern);
+      if (urlMatch) {
+        const url = urlMatch[1];
+        // Extract ref from URL query parameters
+        const refMatch = url.match(/[?&]ref=([^&]+)/);
+        if (refMatch) {
+          actualRef = refMatch[1];
+        }
+        // Extract rev from URL query parameters
+        const revMatch = url.match(/[?&]rev=([^&]+)/);
+        if (revMatch) {
+          actualRev = revMatch[1];
+        }
+      }
     }
+
+    // Strip refs/tags/ or refs/heads/ prefix from ref if present
+    let refValue = actualRef;
+    let strippedRef = refValue;
+    if (refValue?.startsWith('refs/tags/')) {
+      strippedRef = refValue.replace('refs/tags/', '');
+    } else if (refValue?.startsWith('refs/heads/')) {
+      strippedRef = refValue.replace('refs/heads/', '');
+    }
+
+    // Determine the replaceString based on what's in flake.nix
+    // If rev is specified, use rev; otherwise use the full ref
+    const replaceString = actualRev || refValue || flakeLocked.rev;
 
     // use nixpkgsVersioning for all nixpkgs inputs
     if (
       flakeOriginal.type === 'github' &&
-      flakeOriginal.owner === 'NixOS' &&
-      flakeOriginal.repo === 'nixpkgs'
+      flakeOriginal.owner?.toLowerCase() === 'nixos' &&
+      flakeOriginal.repo?.toLowerCase() === 'nixpkgs'
     ) {
       deps.push({
         depName: 'nixpkgs',
-        currentValue: flakeOriginal.rev ? refValue : undefined,
-        currentDigest: flakeOriginal.rev,
-        replaceString: flakeOriginal.rev,
-        lockedVersion: flakeOriginal.rev ? undefined : flakeLocked.rev,
+        currentValue: strippedRef,
+        currentDigest: actualRev,
+        replaceString,
+        lockedVersion: actualRev || refValue ? undefined : flakeLocked.rev,
         datasource: GitRefsDatasource.id,
         packageName: 'https://github.com/NixOS/nixpkgs',
         versioning: nixpkgsVersioning,
@@ -140,10 +176,10 @@ export async function extractPackageFile(
       case 'github':
         deps.push({
           depName,
-          currentValue: flakeOriginal.rev ? refValue : undefined,
-          currentDigest: flakeOriginal.rev,
-          replaceString: flakeOriginal.rev,
-          lockedVersion: flakeOriginal.rev ? undefined : flakeLocked.rev,
+          currentValue: strippedRef,
+          currentDigest: actualRev,
+          replaceString,
+          lockedVersion: actualRev || refValue ? undefined : flakeLocked.rev,
           datasource: GitRefsDatasource.id,
           packageName: `https://${flakeOriginal.host ?? 'github.com'}/${flakeOriginal.owner}/${flakeOriginal.repo}`,
         });
@@ -151,10 +187,10 @@ export async function extractPackageFile(
       case 'gitlab':
         deps.push({
           depName,
-          currentValue: flakeOriginal.rev ? refValue : undefined,
-          currentDigest: flakeOriginal.rev,
-          replaceString: flakeOriginal.rev,
-          lockedVersion: flakeOriginal.rev ? undefined : flakeLocked.rev,
+          currentValue: strippedRef,
+          currentDigest: actualRev,
+          replaceString,
+          lockedVersion: actualRev || refValue ? undefined : flakeLocked.rev,
           datasource: GitRefsDatasource.id,
           packageName: `https://${flakeOriginal.host ?? 'gitlab.com'}/${decodeURIComponent(flakeOriginal.owner!)}/${flakeOriginal.repo}`,
         });
@@ -162,10 +198,10 @@ export async function extractPackageFile(
       case 'git':
         deps.push({
           depName,
-          currentValue: flakeOriginal.rev ? refValue : undefined,
-          currentDigest: flakeOriginal.rev,
-          replaceString: flakeOriginal.rev,
-          lockedVersion: flakeOriginal.rev ? undefined : flakeLocked.rev,
+          currentValue: strippedRef,
+          currentDigest: actualRev,
+          replaceString,
+          lockedVersion: actualRev || refValue ? undefined : flakeLocked.rev,
           datasource: GitRefsDatasource.id,
           packageName: flakeOriginal.url,
         });
@@ -173,10 +209,10 @@ export async function extractPackageFile(
       case 'sourcehut':
         deps.push({
           depName,
-          currentValue: flakeOriginal.rev ? refValue : undefined,
-          currentDigest: flakeOriginal.rev,
-          replaceString: flakeOriginal.rev,
-          lockedVersion: flakeOriginal.rev ? undefined : flakeLocked.rev,
+          currentValue: strippedRef,
+          currentDigest: actualRev,
+          replaceString,
+          lockedVersion: actualRev || refValue ? undefined : flakeLocked.rev,
           datasource: GitRefsDatasource.id,
           packageName: `https://${flakeOriginal.host ?? 'git.sr.ht'}/${flakeOriginal.owner}/${flakeOriginal.repo}`,
         });
@@ -201,10 +237,10 @@ export async function extractPackageFile(
         } else {
           deps.push({
             depName,
-            currentValue: flakeOriginal.rev ? refValue : undefined,
-            currentDigest: flakeOriginal.rev,
-            replaceString: flakeOriginal.rev,
-            lockedVersion: flakeOriginal.rev ? undefined : flakeLocked.rev,
+            currentValue: strippedRef,
+            currentDigest: actualRev,
+            replaceString,
+            lockedVersion: actualRev || refValue ? undefined : flakeLocked.rev,
             datasource: GitRefsDatasource.id,
             // type tarball always contains this link
             packageName: flakeOriginal.url!.replace(

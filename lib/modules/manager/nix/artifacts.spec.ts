@@ -9,6 +9,10 @@ import { updateArtifacts } from '.';
 import { envMock, mockExecAll, mockExecSequence } from '~test/exec-util';
 import { env, fs, git, hostRules, partial } from '~test/util';
 
+/**
+ * TODO: Check this
+ */
+
 vi.mock('../../../util/exec/env');
 vi.mock('../../../util/fs');
 vi.mock('../../../util/host-rules', () => mockDeep());

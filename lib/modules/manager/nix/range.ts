@@ -1,6 +1,7 @@
 import type { RangeStrategy } from '../../../types';
 import type { RangeConfig } from '../types';
 
+// TODO: Check this
 export function getRangeStrategy({
   currentValue,
   depName,

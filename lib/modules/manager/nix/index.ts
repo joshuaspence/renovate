@@ -1,17 +1,17 @@
 import { GitRefsDatasource } from '../../datasource/git-refs';
 
 export { extractPackageFile } from './extract';
-export { updateArtifacts } from './artifacts';
 export { getRangeStrategy } from './range';
+export { updateArtifacts } from './artifacts';
 
 export const supportsLockFileMaintenance = true;
 
+// TODO: Remove this.
 export const url = 'https://nix.dev';
 
+// TODO: Check this.
 export const defaultConfig = {
   managerFilePatterns: ['/(^|/)flake\\.nix$/'],
-  commitMessageTopic: 'nix',
-  commitMessageExtra: 'to {{newValue}}',
   enabled: false,
 };
 
