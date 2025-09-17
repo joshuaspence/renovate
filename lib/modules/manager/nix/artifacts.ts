@@ -52,9 +52,9 @@ export async function updateArtifacts({
     const inputs = updatedDeps
       .map(({ depName }) => depName)
       .filter(is.nonEmptyStringAndNotWhitespace)
-      .map((depName) => quote(depName))
+      .map((depName) => `--update-input ${quote(depName)}`)
       .join(' ');
-    cmd += `flake update ${inputs}`;
+    cmd += `flake lock ${inputs}`;
   }
   const execOptions: ExecOptions = {
     cwdFile: packageFileName,
