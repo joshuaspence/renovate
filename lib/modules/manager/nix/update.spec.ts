@@ -1,6 +1,6 @@
 import { codeBlock } from 'common-tags';
-import { updateDependency } from './update.ts';
 import { logger } from '~test/util.ts';
+import { updateDependency } from './update.ts';
 
 describe('modules/manager/nix/update', () => {
   describe('updateDependency', () => {
@@ -8,6 +8,7 @@ describe('modules/manager/nix/update', () => {
       const fileContent = 'test';
       const result = updateDependency({
         fileContent,
+        packageFile: 'flake.nix',
         upgrade: {
           currentValue: '1.0.0',
           newValue: '2.0.0',
@@ -29,6 +30,7 @@ describe('modules/manager/nix/update', () => {
       `;
       const result = updateDependency({
         fileContent,
+        packageFile: 'flake.nix',
         upgrade: {
           depName: 'nonexistent',
           currentValue: '1.0.0',
@@ -51,6 +53,7 @@ describe('modules/manager/nix/update', () => {
       `;
       const result = updateDependency({
         fileContent,
+        packageFile: 'flake.nix',
         upgrade: {
           depName: 'nixpkgs',
         },
@@ -72,6 +75,7 @@ describe('modules/manager/nix/update', () => {
         `;
         const result = updateDependency({
           fileContent,
+          packageFile: 'flake.nix',
           upgrade: {
             depName: 'nixpkgs',
             currentValue: '24.05',
@@ -92,6 +96,7 @@ describe('modules/manager/nix/update', () => {
         `;
         const result = updateDependency({
           fileContent,
+          packageFile: 'flake.nix',
           upgrade: {
             depName: 'nixpkgs',
             currentDigest: 'af51545ec9a44eadf3fe3547610a5cdd882bc34e',
@@ -114,6 +119,7 @@ describe('modules/manager/nix/update', () => {
         `;
         const result = updateDependency({
           fileContent,
+          packageFile: 'flake.nix',
           upgrade: {
             depName: 'nixpkgs',
             currentValue: '24.05',
@@ -134,6 +140,7 @@ describe('modules/manager/nix/update', () => {
         `;
         const result = updateDependency({
           fileContent,
+          packageFile: 'flake.nix',
           upgrade: {
             depName: 'nixpkgs',
             currentValue: '24.05',
@@ -154,6 +161,7 @@ describe('modules/manager/nix/update', () => {
         `;
         const result = updateDependency({
           fileContent,
+          packageFile: 'flake.nix',
           upgrade: {
             depName: 'nixpkgs',
             currentDigest: 'af51545ec9a44eadf3fe3547610a5cdd882bc34e',
@@ -180,6 +188,7 @@ describe('modules/manager/nix/update', () => {
         `;
         const result = updateDependency({
           fileContent,
+          packageFile: 'flake.nix',
           upgrade: {
             depName: 'mypackage',
             currentValue: '1.0',
@@ -200,6 +209,7 @@ describe('modules/manager/nix/update', () => {
         `;
         const result = updateDependency({
           fileContent,
+          packageFile: 'flake.nix',
           upgrade: {
             depName: 'mypackage',
             currentValue: '1.0',
@@ -220,6 +230,7 @@ describe('modules/manager/nix/update', () => {
         `;
         const result = updateDependency({
           fileContent,
+          packageFile: 'flake.nix',
           upgrade: {
             depName: 'mypackage',
             currentValue: '1.0.0',
@@ -240,6 +251,7 @@ describe('modules/manager/nix/update', () => {
         `;
         const result = updateDependency({
           fileContent,
+          packageFile: 'flake.nix',
           upgrade: {
             depName: 'mypackage',
             currentDigest: '0da084a03fa90c38c859208c38fae6bbfd7b9144',
@@ -264,6 +276,7 @@ describe('modules/manager/nix/update', () => {
         `;
         const result = updateDependency({
           fileContent,
+          packageFile: 'flake.nix',
           upgrade: {
             depName: 'foo-bar',
             currentValue: '2.8.0',
@@ -293,6 +306,7 @@ describe('modules/manager/nix/update', () => {
       `;
       const result = updateDependency({
         fileContent,
+        packageFile: 'flake.nix',
         upgrade: {
           depName: 'mypackage',
           currentValue: '1.0.0',
@@ -323,6 +337,7 @@ describe('modules/manager/nix/update', () => {
       `;
       const result1 = updateDependency({
         fileContent,
+        packageFile: 'flake.nix',
         upgrade: {
           depName: 'cachix-github-ref-tag',
           currentValue: 'v1.7.2',
@@ -335,6 +350,7 @@ describe('modules/manager/nix/update', () => {
 
       const result2 = updateDependency({
         fileContent,
+        packageFile: 'flake.nix',
         upgrade: {
           depName: 'cachix-githttps-ref-tag',
           currentValue: 'v1.7.2',
@@ -356,6 +372,7 @@ describe('modules/manager/nix/update', () => {
       `;
       const result = updateDependency({
         fileContent,
+        packageFile: 'flake.nix',
         upgrade: {
           depName: 'nixpkgs-tar',
           currentValue: 'nixpkgs-unstable',
@@ -388,6 +405,7 @@ describe('modules/manager/nix/update', () => {
 
       const result1 = updateDependency({
         fileContent,
+        packageFile: 'flake.nix',
         upgrade: {
           depName: 'nixpkgs-branch',
           currentValue: 'nixos-24.05',
@@ -403,6 +421,7 @@ describe('modules/manager/nix/update', () => {
 
       const result2 = updateDependency({
         fileContent,
+        packageFile: 'flake.nix',
         upgrade: {
           depName: 'nixpkgs-ref',
           currentValue: 'nixos-24.05',
@@ -427,6 +446,7 @@ describe('modules/manager/nix/update', () => {
       `;
       const result = updateDependency({
         fileContent,
+        packageFile: 'flake.nix',
         upgrade: {
           depName: 'nixpkgs-tar',
           currentValue: 'nixpkgs-unstable',
